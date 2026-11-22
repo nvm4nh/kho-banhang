@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -47,17 +46,14 @@ public class StockService {
                 .addValue("wh", warehouseId)
                 .addValue("pid", productId)
                 .addValue("qty", qty);
-        int updated;
-        try {
-            updated = jdbc.update("""
-                    UPDATE stock_balance
-                    SET qty = qty - :qty, version = version + 1
-                    WHERE warehouse_id = :wh AND product_id = :pid AND qty >= :qty
-                    """, params);
-        } catch (DataIntegrityViolationException e) {
-            // Lop chan thu hai: rang buoc CHECK (qty >= 0) cua CSDL.
-            updated = 0;
-        }
+        // Dieu kien qty >= :qty la lop chan thu nhat. Rang buoc CHECK (qty >= 0) cua CSDL la lop thu hai:
+        // neu no bi vi pham, loi duoc de nguyen cho transaction rollback va GlobalExceptionHandler
+        // tra 409, khong bat lai o day (INS-04: tren PostgreSQL transaction da hong sau loi do).
+        int updated = jdbc.update("""
+                UPDATE stock_balance
+                SET qty = qty - :qty, version = version + 1
+                WHERE warehouse_id = :wh AND product_id = :pid AND qty >= :qty
+                """, params);
         if (updated == 0) {
             int remaining = currentQty(warehouseId, productId);
             throw new BusinessException("INSUFFICIENT_STOCK",

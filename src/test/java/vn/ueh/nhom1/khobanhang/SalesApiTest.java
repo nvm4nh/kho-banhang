@@ -153,6 +153,16 @@ class SalesApiTest {
     }
 
     @Test
+    void jsonSaiDinhDang_traVeDangCodeMessage() throws Exception {
+        mvc.perform(post("/api/sales")
+                        .header("Authorization", "Bearer " + token("thungan1"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{khong phai json"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INVALID_REQUEST"));
+    }
+
+    @Test
     void soLuongAm_bao400() throws Exception {
         mvc.perform(post("/api/sales")
                         .header("Authorization", "Bearer " + token("thungan1"))
