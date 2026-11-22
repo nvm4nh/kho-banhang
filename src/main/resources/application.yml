@@ -1,22 +1,35 @@
-# Mac dinh chay bang H2 trong bo nho (che do PostgreSQL) de demo va kiem thu
-# khong can cai CSDL. Chay that voi PostgreSQL: --spring.profiles.active=postgres
+# Profile mac dinh la "dev": H2 trong bo nho, tu tao bang va du lieu mau de demo, kiem thu.
+# Chay voi CSDL that: --spring.profiles.active=postgres (khong tu tao bang, khong nap du lieu mau).
 spring:
+  profiles:
+    default: dev
+
+app:
+  jwt:
+    # Bi mat ky JWT bat buoc lay tu bien moi truong (D02 muc 4.2, INS-02).
+    secret: ${APP_JWT_SECRET}
+    ttl-hours: 8
+  login:
+    max-failed-attempts: 5
+    lock-minutes: 15
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
   datasource:
     url: jdbc:h2:mem:khobanhang;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
     username: sa
     password:
   sql:
     init:
+      # Chi profile dev moi chay schema.sql (co DROP TABLE) va data.sql (INS-01).
       mode: always
-
 app:
   jwt:
-    # Bi mat ky JWT lay tu bien moi truong (D02 muc 4.2). Gia tri mac dinh chi dung cho may dev.
+    # Gia tri nay chi ton tai trong profile dev, khong dung duoc khi chay profile postgres.
     secret: ${APP_JWT_SECRET:dev-only-secret-key-change-me-0123456789abcdef}
-    ttl-hours: 8
-  login:
-    max-failed-attempts: 5
-    lock-minutes: 15
 
 ---
 spring:
@@ -27,3 +40,7 @@ spring:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/khobanhang}
     username: ${DB_USER:khobanhang}
     password: ${DB_PASSWORD}
+  sql:
+    init:
+      # Khong bao gio tu chay schema.sql / data.sql tren CSDL that (INS-01).
+      mode: never

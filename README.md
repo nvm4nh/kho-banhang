@@ -15,7 +15,7 @@ mvn test              # chạy 12 test
 mvn spring-boot:run   # chạy server ở http://localhost:8080 với CSDL H2 trong bộ nhớ
 ```
 
-Chạy với PostgreSQL thật: tạo CSDL `khobanhang`, đặt các biến `DB_URL`, `DB_USER`, `DB_PASSWORD`, `APP_JWT_SECRET` (ít nhất 32 ký tự), rồi chạy `mvn spring-boot:run -Dspring-boot.run.profiles=postgres`.
+Chạy với PostgreSQL thật: tạo CSDL `khobanhang`, tạo bảng một lần bằng `psql -d khobanhang -f src/main/resources/schema.sql` (lệnh này xóa bảng cũ nếu có), đặt các biến `DB_URL`, `DB_USER`, `DB_PASSWORD`, `APP_JWT_SECRET` (ít nhất 32 ký tự), rồi chạy `mvn spring-boot:run -Dspring-boot.run.profiles=postgres`. Profile `postgres` không tự tạo bảng, không nạp tài khoản mẫu, và không khởi động được nếu thiếu `APP_JWT_SECRET`.
 
 Tài khoản mẫu, mật khẩu đều là `Matkhau@123`:
 
