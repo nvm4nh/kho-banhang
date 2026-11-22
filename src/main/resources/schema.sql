@@ -102,6 +102,6 @@ CREATE TABLE audit_log (
     action      VARCHAR(50)  NOT NULL,
     entity      VARCHAR(50),
     entity_id   BIGINT,
-    detail      VARCHAR(500),
+    detail      TEXT,
     created_at  TIMESTAMP    NOT NULL
 );
