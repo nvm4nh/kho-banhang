@@ -52,7 +52,7 @@ public class AuthService {
 
         if (user.isLockedAt(now)) {
             throw new BusinessException("ACCOUNT_LOCKED",
-                    "Tai khoan tam khoa do nhap sai mat khau nhieu lan. Thu lai sau " + lockMinutes + " phut.",
+                    "Tài khoản tạm khóa do nhập sai mật khẩu nhiều lần. Thử lại sau " + lockMinutes + " phút.",
                     HttpStatus.LOCKED);
         }
 
@@ -78,6 +78,6 @@ public class AuthService {
     // Cung mot thong bao cho sai ten dang nhap va sai mat khau, de khong lo ten dang nhap nao ton tai.
     private static BusinessException invalidCredentials() {
         return new BusinessException("INVALID_CREDENTIALS",
-                "Ten dang nhap hoac mat khau khong dung", HttpStatus.UNAUTHORIZED);
+                "Tên đăng nhập hoặc mật khẩu không đúng", HttpStatus.UNAUTHORIZED);
     }
 }

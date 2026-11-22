@@ -21,7 +21,7 @@ public record CheckoutRequest(
         @Pattern(regexp = "[A-Za-z0-9-]{8,64}", message = "mã yêu cầu gồm 8 đến 64 ký tự chữ, số hoặc dấu gạch") String clientRequestId) {
 
     public record Line(
-            @NotBlank @Pattern(regexp = "\\d{8,14}", message = "ma vach phai gom 8 den 14 chu so") String barcode,
+            @NotBlank @Pattern(regexp = "\\d{8,14}", message = "mã vạch phải gồm 8 đến 14 chữ số") String barcode,
             @Min(1) @Max(999) int qty) {
     }
 

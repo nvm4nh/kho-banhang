@@ -126,7 +126,7 @@ class SalesApiTest {
                         .content(checkoutBody(cn01, TIVI, 2)))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.code").value("INSUFFICIENT_STOCK"))
-                .andExpect(jsonPath("$.message").value("Het hang, con 1"));
+                .andExpect(jsonPath("$.message").value("Hết hàng, còn 1"));
 
         // Transaction bi rollback: khong con hoa don nao, ton giu nguyen.
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM sales_invoice", Integer.class)).isZero();

@@ -18,7 +18,7 @@ public record CurrentUser(long id, String username, List<Assignment> assignments
      */
     public void requireRoleAt(String role, long warehouseId) {
         if (!hasRoleAt(role, warehouseId)) {
-            throw BusinessException.forbidden("Ban khong duoc thao tac tren du lieu cua kho/chi nhanh nay");
+            throw BusinessException.forbidden("Bạn không được thao tác trên dữ liệu của kho/chi nhánh này");
         }
     }
 }

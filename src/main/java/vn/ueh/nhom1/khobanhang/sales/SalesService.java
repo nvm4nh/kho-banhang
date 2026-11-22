@@ -93,7 +93,7 @@ public class SalesService {
                 (rs, i) -> new Product(rs.getLong("id"), rs.getString("name"), rs.getBigDecimal("price")));
         if (rows.isEmpty()) {
             throw BusinessException.badRequest("PRODUCT_NOT_FOUND",
-                    "Khong tim thay ma " + barcode + ". Quet lai hoac go ten san pham.");
+                    "Không tìm thấy mã " + barcode + ". Quét lại hoặc gõ tên sản phẩm.");
         }
         return rows.get(0);
     }

@@ -40,7 +40,7 @@ public class StockService {
     public void decrease(long warehouseId, long productId, int qty,
                          String refType, long refId, long userId) {
         if (qty <= 0) {
-            throw BusinessException.badRequest("INVALID_QTY", "So luong phai lon hon 0");
+            throw BusinessException.badRequest("INVALID_QTY", "Số lượng phải lớn hơn 0");
         }
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("wh", warehouseId)
@@ -57,7 +57,7 @@ public class StockService {
         if (updated == 0) {
             int remaining = currentQty(warehouseId, productId);
             throw new BusinessException("INSUFFICIENT_STOCK",
-                    "Het hang, con " + remaining, HttpStatus.CONFLICT);
+                    "Hết hàng, còn " + remaining, HttpStatus.CONFLICT);
         }
         recordMovement(warehouseId, productId, -qty, refType, refId, userId);
         warnIfBelowMinimum(warehouseId, productId, userId);
