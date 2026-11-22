@@ -133,6 +133,26 @@ class SalesApiTest {
     }
 
     @Test
+    void taiKhoanBiKhoaSauKhiDangNhap_tokenCuBiTuChoi401() throws Exception {
+        String token = token("thungan1");
+        jdbc.update("UPDATE app_user SET locked_until = DATEADD('MINUTE', 15, CURRENT_TIMESTAMP) WHERE username = 'thungan1'");
+
+        mvc.perform(get("/api/stock").param("warehouseId", String.valueOf(warehouseId("CN01")))
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void taiKhoanNgungHoatDong_tokenCuBiTuChoi401() throws Exception {
+        String token = token("thungan1");
+        jdbc.update("UPDATE app_user SET active = FALSE WHERE username = 'thungan1'");
+
+        mvc.perform(get("/api/stock").param("warehouseId", String.valueOf(warehouseId("CN01")))
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void soLuongAm_bao400() throws Exception {
         mvc.perform(post("/api/sales")
                         .header("Authorization", "Bearer " + token("thungan1"))

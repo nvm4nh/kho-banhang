@@ -45,6 +45,26 @@ public class UserRepository {
         return rows.stream().findFirst();
     }
 
+    public Optional<UserAccount> findById(long id) {
+        List<UserAccount> rows = jdbc.query("""
+                SELECT id, username, password_hash, full_name, failed_login_count, locked_until, active
+                FROM app_user WHERE id = :id
+                """,
+                Map.of("id", id),
+                (rs, i) -> {
+                    Timestamp locked = rs.getTimestamp("locked_until");
+                    return new UserAccount(
+                            rs.getLong("id"),
+                            rs.getString("username"),
+                            rs.getString("password_hash"),
+                            rs.getString("full_name"),
+                            rs.getInt("failed_login_count"),
+                            locked == null ? null : locked.toLocalDateTime(),
+                            rs.getBoolean("active"));
+                });
+        return rows.stream().findFirst();
+    }
+
     public List<Assignment> findAssignments(long userId) {
         return jdbc.query("""
                 SELECT role, warehouse_id FROM user_assignment WHERE user_id = :userId

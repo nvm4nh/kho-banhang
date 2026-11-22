@@ -1,6 +1,7 @@
 package vn.ueh.nhom1.khobanhang.security;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.http.HttpHeaders;
@@ -16,6 +17,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import vn.ueh.nhom1.khobanhang.auth.JwtService;
+import vn.ueh.nhom1.khobanhang.auth.UserAccount;
 import vn.ueh.nhom1.khobanhang.auth.UserRepository;
 
 /**
@@ -39,7 +41,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (header != null && header.startsWith("Bearer ")) {
             Claims claims = jwtService.parse(header.substring(7));
-            if (claims != null) {
+            // Token hop le van bi tu choi neu tai khoan da ngung hoat dong hoac dang bi khoa (INS-03, FDR-03).
+            boolean accountUsable = claims != null && users.findById(claims.get("uid", Long.class))
+                    .filter(UserAccount::active)
+                    .filter(u -> !u.isLockedAt(LocalDateTime.now()))
+                    .isPresent();
+            if (accountUsable) {
                 long userId = claims.get("uid", Long.class);
                 List<Assignment> assignments = users.findAssignments(userId);
                 CurrentUser principal = new CurrentUser(userId, claims.getSubject(), assignments);
