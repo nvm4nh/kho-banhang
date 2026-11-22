@@ -11,7 +11,7 @@ Tài liệu liên quan:
 Cần Java 17 trở lên và Maven 3.9.
 
 ```bash
-mvn test              # chạy 12 test
+mvn test              # chạy 16 test
 mvn spring-boot:run   # chạy server ở http://localhost:8080 với CSDL H2 trong bộ nhớ
 ```
 
@@ -49,7 +49,7 @@ curl -s -X POST localhost:8080/api/sales -H "Authorization: Bearer <token>" -H '
 | `stock/StockService.java` | Nơi duy nhất trừ tồn, bằng câu UPDATE có điều kiện | Mục 1, 3.2 |
 | `sales/SalesService.java` | Bán hàng trong một transaction, hóa đơn điện tử để PENDING | Mục 3.1, 6.2 |
 | `common/GlobalExceptionHandler.java` | Lỗi trả về `{code, message}` | Mục 5.3 |
-| `src/test/...` | 12 test: đăng nhập, khóa tài khoản, 403 khác chi nhánh, hết hàng, hai thu ngân cùng bán | NF03, NF04 |
+| `src/test/...` | 16 test: đăng nhập, khóa tài khoản, token của tài khoản bị khóa, 403 khác chi nhánh, hết hàng, hai thu ngân cùng bán, gửi trùng hóa đơn, JSON sai | NF03, NF04 |
 
 ## Chưa làm trong lát cắt này
 
@@ -61,4 +61,8 @@ curl -s -X POST localhost:8080/api/sales -H "Authorization: Bearer <token>" -H '
 
 ## Gợi ý cho buổi Inspection
 
-Khoảng 840 dòng Java trong `src/main` và 300 dòng test. Nên kiểm tra theo checklist MN và KT trong tab Quality Checklist, tập trung vào `StockService`, `SalesService` và `AuthService`. Lỗi tìm được ghi vào Issue Log với mã INS-01, INS-02…
+Khoảng 900 dòng Java trong `src/main` và 380 dòng test. Nên kiểm tra theo checklist MN và KT trong tab Quality Checklist, tập trung vào `StockService`, `SalesService` và `AuthService`. Lỗi tìm được ghi vào Issue Log với mã INS-01, INS-02…
+
+## Kết quả Inspection ngày 22/11/2026
+
+Đợt Inspection ghi nhận 8 lỗi (INS-01 đến INS-08). Đã sửa INS-01 đến INS-07, mỗi lỗi một commit, tên commit bắt đầu bằng "Sua INS-..". INS-08 mới sửa một phần: đã thêm test cho tài khoản bị khóa, còn thiếu test chạy trên PostgreSQL (cần Docker hoặc một CSDL PostgreSQL để chạy).
