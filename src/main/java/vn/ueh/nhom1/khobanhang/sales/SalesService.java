@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -47,6 +48,14 @@ public class SalesService {
         // Lop kiem tra thu hai: thu ngan chi ban duoc tai chi nhanh duoc gan (D02 muc 4.1).
         cashier.requireRoleAt("CASHIER", warehouseId);
 
+        // Yeu cau gui lai voi cung ma: tra ve hoa don da tao, khong tru ton lan nua (FDR-02, INS-05).
+        if (request.clientRequestId() != null) {
+            Optional<CheckoutResult> existing = findByClientRequestId(request.clientRequestId(), cashier.id());
+            if (existing.isPresent()) {
+                return existing.get();
+            }
+        }
+
         // Gop cac dong trung ma vach: quet cung mot mon hai lan = so luong 2.
         Map<String, Integer> qtyByBarcode = new LinkedHashMap<>();
         for (CheckoutRequest.Line line : request.lines()) {
@@ -61,7 +70,7 @@ public class SalesService {
             total = total.add(p.price().multiply(BigDecimal.valueOf(e.getValue())));
         }
 
-        long invoiceId = insertInvoice(warehouseId, cashier.id(), total);
+        long invoiceId = insertInvoice(warehouseId, cashier.id(), total, request.clientRequestId());
         for (Map.Entry<String, Integer> e : qtyByBarcode.entrySet()) {
             Product p = products.get(e.getKey());
             int qty = e.getValue();
@@ -89,16 +98,26 @@ public class SalesService {
         return rows.get(0);
     }
 
-    private long insertInvoice(long warehouseId, long cashierId, BigDecimal total) {
+    private Optional<CheckoutResult> findByClientRequestId(String clientRequestId, long cashierId) {
+        List<CheckoutResult> rows = jdbc.query("""
+                SELECT id, total, einvoice_status FROM sales_invoice
+                WHERE client_request_id = :rid AND cashier_id = :cashier
+                """, Map.of("rid", clientRequestId, "cashier", cashierId),
+                (rs, i) -> new CheckoutResult(rs.getLong("id"), rs.getBigDecimal("total"), rs.getString("einvoice_status")));
+        return rows.stream().findFirst();
+    }
+
+    private long insertInvoice(long warehouseId, long cashierId, BigDecimal total, String clientRequestId) {
         KeyHolder key = new GeneratedKeyHolder();
         jdbc.update("""
-                INSERT INTO sales_invoice (warehouse_id, cashier_id, total, status, einvoice_status, created_at)
-                VALUES (:wh, :cashier, :total, 'COMPLETED', 'PENDING', :createdAt)
+                INSERT INTO sales_invoice (warehouse_id, cashier_id, total, status, einvoice_status, client_request_id, created_at)
+                VALUES (:wh, :cashier, :total, 'COMPLETED', 'PENDING', :rid, :createdAt)
                 """,
                 new MapSqlParameterSource()
                         .addValue("wh", warehouseId)
                         .addValue("cashier", cashierId)
                         .addValue("total", total)
+                        .addValue("rid", clientRequestId)
                         .addValue("createdAt", LocalDateTime.now()),
                 key, new String[] {"id"});
         return key.getKey().longValue();

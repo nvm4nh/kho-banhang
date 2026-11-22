@@ -16,7 +16,9 @@ import jakarta.validation.constraints.Pattern;
 public record CheckoutRequest(
         @NotNull Long warehouseId,
         @NotEmpty @Valid List<Line> lines,
-        @NotNull PaymentMethod paymentMethod) {
+        @NotNull PaymentMethod paymentMethod,
+        // Tuy chon: ma duy nhat cho moi lan thanh toan, de gui lai khong tao hoa don trung (FDR-02, INS-05).
+        @Pattern(regexp = "[A-Za-z0-9-]{8,64}", message = "mã yêu cầu gồm 8 đến 64 ký tự chữ, số hoặc dấu gạch") String clientRequestId) {
 
     public record Line(
             @NotBlank @Pattern(regexp = "\\d{8,14}", message = "ma vach phai gom 8 den 14 chu so") String barcode,

@@ -153,6 +153,32 @@ class SalesApiTest {
     }
 
     @Test
+    void guiLaiCungMaYeuCau_khongTaoHoaDonTrung() throws Exception {
+        long cn01 = warehouseId("CN01");
+        String body = json.writeValueAsString(Map.of(
+                "warehouseId", cn01,
+                "paymentMethod", "CASH",
+                "clientRequestId", "pos01-20261122-0001",
+                "lines", new Object[] {Map.of("barcode", NOI_COM, "qty", 1)}));
+        String token = token("thungan1");
+
+        String first = mvc.perform(post("/api/sales").header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+        String second = mvc.perform(post("/api/sales").header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+
+        assertThat(json.readTree(second).get("invoiceId").asLong())
+                .isEqualTo(json.readTree(first).get("invoiceId").asLong());
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM sales_invoice", Integer.class)).isEqualTo(1);
+        Integer qty = jdbc.queryForObject("""
+                SELECT s.qty FROM stock_balance s JOIN product p ON p.id = s.product_id
+                WHERE s.warehouse_id = ? AND p.barcode = ?""", Integer.class, cn01, NOI_COM);
+        assertThat(qty).isEqualTo(9);
+    }
+
+    @Test
     void jsonSaiDinhDang_traVeDangCodeMessage() throws Exception {
         mvc.perform(post("/api/sales")
                         .header("Authorization", "Bearer " + token("thungan1"))

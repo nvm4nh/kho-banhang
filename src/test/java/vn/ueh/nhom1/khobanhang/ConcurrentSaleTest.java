@@ -45,7 +45,7 @@ class ConcurrentSaleTest {
         CurrentUser b = cashier("thungan1b");
         CheckoutRequest request = new CheckoutRequest(cn01,
                 List.of(new CheckoutRequest.Line("8930000000011", 1)),
-                CheckoutRequest.PaymentMethod.CASH);
+                CheckoutRequest.PaymentMethod.CASH, null);
 
         CountDownLatch start = new CountDownLatch(1);
         ExecutorService pool = Executors.newFixedThreadPool(2);

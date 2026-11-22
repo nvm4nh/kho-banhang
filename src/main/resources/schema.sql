@@ -64,6 +64,8 @@ CREATE TABLE sales_invoice (
     total            NUMERIC(15, 0) NOT NULL CHECK (total >= 0),
     status           VARCHAR(20)    NOT NULL,
     einvoice_status  VARCHAR(20)    NOT NULL,
+    -- Ma yeu cau do man hinh POS sinh mot lan cho moi hoa don; gui lai cung ma khong tao hoa don moi (FDR-02).
+    client_request_id VARCHAR(64)   UNIQUE,
     created_at       TIMESTAMP      NOT NULL
 );
 
